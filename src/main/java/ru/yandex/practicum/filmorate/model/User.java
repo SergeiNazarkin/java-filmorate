@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
     @NotBlank
-    @Email(message = "Email должен быть корректным адресом электронной почты")
+    @Email
     private String email;
     private String login;
     private Integer id;

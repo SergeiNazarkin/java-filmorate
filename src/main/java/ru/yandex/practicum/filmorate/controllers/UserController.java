@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,11 +9,12 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final Map<Integer, User> usersMap = new HashMap<>();
+    // private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    protected final Map<Integer, User> usersMap = new HashMap<>();
     int idGen = 0;
 
     @PostMapping()
@@ -23,7 +23,7 @@ public class UserController {
             log.debug("Попытка создания пользователя с пустым логином");
             throw new ValidationException("Логин не может быть пустым.");
         }
-        if (!checkWhiteSpace(user.getLogin())) {
+        if (checkWhiteSpace(user.getLogin())) {
             log.debug("Логин содержит пробелы");
             throw new ValidationException("Логин не может содержать пробел.");
         }
@@ -34,7 +34,7 @@ public class UserController {
             log.debug("Попытка создания пользователя с будущей датой рождения");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (user.getEmail() == null || user.getEmail().isBlank()){
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
             log.debug("Попытка создания пользователя с пустым email");
             throw new ValidationException("Email не может быть пустым.");
         }
@@ -69,7 +69,7 @@ public class UserController {
             log.debug("Попытка изменить пользователю логин на пустой");
             throw new ValidationException("Логин не может быть пустым.");
         }
-        if (!checkWhiteSpace(user.getLogin())) {
+        if (checkWhiteSpace(user.getLogin())) {
             log.debug("Логин содержит пробелы");
             throw new ValidationException("Логин не может содержать пробел.");
         }
@@ -80,7 +80,7 @@ public class UserController {
             log.debug("Попытка изменить пользователю дату из будущего");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (!usersMap.keySet().contains(user.getId())) {
+        if (!usersMap.containsKey(user.getId())) {
             log.debug("Попытка изменить пользователю c несуществующим id");
             throw new ValidationException("Пользователь с таким id не найден.");
         }
@@ -92,11 +92,12 @@ public class UserController {
     private boolean checkWhiteSpace(String s) {
         for (char c : s.toCharArray()) {
             if (c == ' ') {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
+
     private boolean checkEmailCorrect(String s) {
         for (char c : s.toCharArray()) {
             if (c == '@') {

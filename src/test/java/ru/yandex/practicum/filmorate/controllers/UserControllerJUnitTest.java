@@ -6,7 +6,6 @@ import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,27 +15,32 @@ class UserControllerJUnitTest {
     @BeforeEach
     public void prepareTest() {
         uc = new UserController();
+    }
 
+    @Test
+    public void userCreateTest() {
+        User user = new User("user@yandex.ru", "belka", 1, "Иван",
+                LocalDate.of(2022, 6, 4));
+        uc.create(user);
+
+        assertEquals(user, uc.usersMap.get(1));
+        assertNotNull(uc.usersMap.get(1));
     }
 
     @Test
     public void userCreateLoginIsEmptyTest() {
-        User user = new User("user@yandex.ru", "", 1, "Иван", LocalDate.of(2022, 6, 4));
+        User user = new User("user@yandex.ru", "", 1, "Иван",
+                LocalDate.of(2022, 6, 4));
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        uc.create(user);
-                    }
-                });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> uc.create(user));
 
         assertEquals("Логин не может быть пустым.", exception.getMessage());
     }
 
     @Test
     public void userCreateLoginWithWhiteSpaceTest() {
-        User user = new User("user@yandex.ru", "iv an", 1, "Иван", LocalDate.of(2022, 6, 4));
+        User user = new User("user@yandex.ru", "iv an", 1, "Иван",
+                LocalDate.of(2022, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -51,7 +55,8 @@ class UserControllerJUnitTest {
 
     @Test
     public void userCreateWithFutureDateTest() {
-        User user = new User("user@yandex.ru", "ivan", 1, "Иван", LocalDate.of(2032, 6, 4));
+        User user = new User("user@yandex.ru", "ivan", 1, "Иван",
+                LocalDate.of(2032, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -81,7 +86,8 @@ class UserControllerJUnitTest {
 
     @Test
     public void userCreateWithWrongFormatEmail() {
-        User user = new User("useryandex.ru", "ivan", 1, "Иван", LocalDate.of(1985, 6, 4));
+        User user = new User("useryandex.ru", "ivan", 1, "Иван",
+                LocalDate.of(1985, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -96,7 +102,8 @@ class UserControllerJUnitTest {
 
     @Test
     public void userUpdateLoginIsEmptyTest() {
-        User user = new User("user@yandex.ru", "", 1, "Иван", LocalDate.of(2022, 6, 4));
+        User user = new User("user@yandex.ru", "", 1, "Иван",
+                LocalDate.of(2022, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -109,10 +116,10 @@ class UserControllerJUnitTest {
         assertEquals("Логин не может быть пустым.", exception.getMessage());
     }
 
-
     @Test
     public void userUpdateLoginWithWhiteSpaceTest() {
-        User user = new User("user@yandex.ru", "iv an", 1, "Иван", LocalDate.of(2022, 6, 4));
+        User user = new User("user@yandex.ru", "iv an", 1, "Иван",
+                LocalDate.of(2022, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -127,7 +134,8 @@ class UserControllerJUnitTest {
 
     @Test
     public void userUpdateWithFutureDateTest() {
-        User user = new User("user@yandex.ru", "ivan", 1, "Иван", LocalDate.of(2032, 6, 4));
+        User user = new User("user@yandex.ru", "ivan", 1, "Иван",
+                LocalDate.of(2032, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -142,7 +150,8 @@ class UserControllerJUnitTest {
 
     @Test
     public void userUpdateWithWrongId() {
-        User user = new User("user@yandex.ru", "ivan", 0, "Иван", LocalDate.of(1985, 6, 4));
+        User user = new User("user@yandex.ru", "ivan", 0, "Иван",
+                LocalDate.of(1985, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
@@ -154,7 +163,4 @@ class UserControllerJUnitTest {
 
         assertEquals("Пользователь с таким id не найден.", exception.getMessage());
     }
-
-
-
 }
