@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.controllers.UserController;
 @WebMvcTest(controllers = UserController.class)
 public class UserControllerTest {
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Test
     @DisplayName("Если некорректно заполнено поле mail, то возвращается код 400")

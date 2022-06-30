@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,34 +11,37 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerJUnitTest {
-    UserController uc;
+    private UserController userController;
 
     @BeforeEach
     public void prepareTest() {
-        uc = new UserController();
+        this.userController = new UserController();
     }
 
     @Test
+    @DisplayName("Проверка успешного создания пользователя при корректных данных")
     public void userCreateTest() {
         User user = new User("user@yandex.ru", "belka", 1, "Иван",
                 LocalDate.of(2022, 6, 4));
-        uc.create(user);
+        userController.create(user);
 
-        assertEquals(user, uc.usersMap.get(1));
-        assertNotNull(uc.usersMap.get(1));
+        assertEquals(user, userController.usersMap.get(1));
+        assertNotNull(userController.usersMap.get(1));
     }
 
     @Test
+    @DisplayName("Проверка валидации при создании пользователя с пустым логином")
     public void userCreateLoginIsEmptyTest() {
         User user = new User("user@yandex.ru", "", 1, "Иван",
                 LocalDate.of(2022, 6, 4));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> uc.create(user));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userController.create(user));
 
         assertEquals("Логин не может быть пустым.", exception.getMessage());
     }
 
     @Test
+    @DisplayName("Проверка валидации при создании пользователя с логином, содержащим пробел")
     public void userCreateLoginWithWhiteSpaceTest() {
         User user = new User("user@yandex.ru", "iv an", 1, "Иван",
                 LocalDate.of(2022, 6, 4));
@@ -46,7 +50,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.create(user);
+                        userController.create(user);
                     }
                 });
 
@@ -54,6 +58,7 @@ class UserControllerJUnitTest {
     }
 
     @Test
+    @DisplayName("Проверка валидации при создании пользователя с будущей датой рождения")
     public void userCreateWithFutureDateTest() {
         User user = new User("user@yandex.ru", "ivan", 1, "Иван",
                 LocalDate.of(2032, 6, 4));
@@ -62,7 +67,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.create(user);
+                        userController.create(user);
                     }
                 });
 
@@ -70,14 +75,15 @@ class UserControllerJUnitTest {
     }
 
     @Test
-    public void userCreateWithWrongEmail() {
+    @DisplayName("Проверка валидации при создании пользователя с пустым email")
+    public void userCreateEmailIsEmptyTest() {
         User user = new User("", "ivan", 1, "Иван", LocalDate.of(1985, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.create(user);
+                        userController.create(user);
                     }
                 });
 
@@ -85,6 +91,7 @@ class UserControllerJUnitTest {
     }
 
     @Test
+    @DisplayName("Проверка валидации при создании пользователя с некорректным email")
     public void userCreateWithWrongFormatEmail() {
         User user = new User("useryandex.ru", "ivan", 1, "Иван",
                 LocalDate.of(1985, 6, 4));
@@ -93,7 +100,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.create(user);
+                        userController.create(user);
                     }
                 });
 
@@ -101,6 +108,7 @@ class UserControllerJUnitTest {
     }
 
     @Test
+    @DisplayName("Проверка валидации при обновлении пользователя пустым логином")
     public void userUpdateLoginIsEmptyTest() {
         User user = new User("user@yandex.ru", "", 1, "Иван",
                 LocalDate.of(2022, 6, 4));
@@ -109,7 +117,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.updateUser(user);
+                        userController.updateUser(user);
                     }
                 });
 
@@ -117,6 +125,7 @@ class UserControllerJUnitTest {
     }
 
     @Test
+    @DisplayName("Проверка валидации при обновлении пользователя логином, содержащим пробел")
     public void userUpdateLoginWithWhiteSpaceTest() {
         User user = new User("user@yandex.ru", "iv an", 1, "Иван",
                 LocalDate.of(2022, 6, 4));
@@ -125,7 +134,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.updateUser(user);
+                        userController.updateUser(user);
                     }
                 });
 
@@ -133,6 +142,7 @@ class UserControllerJUnitTest {
     }
 
     @Test
+    @DisplayName("Проверка валидации при обновлении пользователя будующей датой рождения")
     public void userUpdateWithFutureDateTest() {
         User user = new User("user@yandex.ru", "ivan", 1, "Иван",
                 LocalDate.of(2032, 6, 4));
@@ -141,7 +151,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.updateUser(user);
+                        userController.updateUser(user);
                     }
                 });
 
@@ -149,6 +159,7 @@ class UserControllerJUnitTest {
     }
 
     @Test
+    @DisplayName("Проверка валидации при попытке обновлении пользователя с несуществующим id")
     public void userUpdateWithWrongId() {
         User user = new User("user@yandex.ru", "ivan", 0, "Иван",
                 LocalDate.of(1985, 6, 4));
@@ -157,7 +168,7 @@ class UserControllerJUnitTest {
                 new Executable() {
                     @Override
                     public void execute() {
-                        uc.updateUser(user);
+                        userController.updateUser(user);
                     }
                 });
 

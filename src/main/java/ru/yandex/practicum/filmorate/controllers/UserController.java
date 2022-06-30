@@ -13,12 +13,41 @@ import java.util.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    // private static final Logger log = LoggerFactory.getLogger(UserController.class);
     protected final Map<Integer, User> usersMap = new HashMap<>();
-    int idGen = 0;
+    private int idGen = 0;
 
-    @PostMapping()
+    @PostMapping
     public User create(@RequestBody @Valid User user) {
+        userControllerPostValidate(user);
+        idGen++;
+        user.setId(idGen);
+        usersMap.put(idGen, user);
+        log.info("Создан объект User: {}", user);
+        System.out.println(usersMap.get(1));
+        return user;
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        List<User> usersList = new ArrayList<>();
+        if (!usersMap.isEmpty()) {
+            for (User user : usersMap.values()) {
+                usersList.add(user);
+            }
+        }
+        log.info("Текущее количество пользователе: {}", usersList.size());
+        return usersList;
+    }
+
+    @PutMapping
+    public User updateUser(@RequestBody @Valid User user) {
+        userControllerPutValidate(user);
+        usersMap.put(user.getId(), user);
+        log.info("Данные пользователя обновлены: {}", user);
+        return user;
+    }
+
+    protected void userControllerPostValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.debug("Попытка создания пользователя с пустым логином");
             throw new ValidationException("Логин не может быть пустым.");
@@ -42,29 +71,9 @@ public class UserController {
             log.debug("Email имеет некорректный формат");
             throw new ValidationException("Email должен содержать символ @.");
         }
-
-        idGen++;
-        user.setId(idGen);
-        usersMap.put(idGen, user);
-        log.info("Создан объект User: {}", user);
-        System.out.println(usersMap.get(1));
-        return user;
     }
 
-    @GetMapping()
-    public List<User> getAllUsers() {
-        List<User> usersList = new ArrayList<>();
-        if (!usersMap.isEmpty()) {
-            for (User user : usersMap.values()) {
-                usersList.add(user);
-            }
-        }
-        log.info("Текущее количество пользователе: {}", usersList.size());
-        return usersList;
-    }
-
-    @PutMapping()
-    public User updateUser(@RequestBody @Valid User user) {
+    protected void userControllerPutValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.debug("Попытка изменить пользователю логин на пустой");
             throw new ValidationException("Логин не может быть пустым.");
@@ -84,9 +93,6 @@ public class UserController {
             log.debug("Попытка изменить пользователю c несуществующим id");
             throw new ValidationException("Пользователь с таким id не найден.");
         }
-        usersMap.put(user.getId(), user);
-        log.info("Данные пользователя обновлены: {}", user);
-        return user;
     }
 
     private boolean checkWhiteSpace(String s) {

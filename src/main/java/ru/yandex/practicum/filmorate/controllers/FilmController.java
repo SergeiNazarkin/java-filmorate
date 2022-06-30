@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,11 +17,40 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
     protected final Map<Integer, Film> filmsMap = new HashMap<>();
-    LocalDate releaseLimit = LocalDate.of(1895, 12, 28);
-    int idFilmGenerator = 0;
+    private final LocalDate releaseLimit = LocalDate.of(1895, 12, 28);
+    private int idFilmGenerator = 0;
 
-    @PostMapping()
+    @PostMapping
     public Film create(@RequestBody Film film) {
+        filmControllerPostValidate(film);
+        idFilmGenerator++;
+        film.setId(idFilmGenerator);
+        filmsMap.put(idFilmGenerator, film);
+        log.info("Создан объект Film: {}", film);
+        return film;
+    }
+
+    @GetMapping
+    public List<Film> getAllFilms() {
+        List<Film> filmsList = new ArrayList<>();
+        if (!filmsMap.isEmpty()) {
+            for (Film film : filmsMap.values()) {
+                filmsList.add(film);
+            }
+        }
+        log.info("Текущее количество фильмов: {}", filmsList.size());
+        return filmsList;
+    }
+
+    @PutMapping
+    public Film filmUpdate(@RequestBody Film film) {
+        filmControllerPutValidate(film);
+        filmsMap.put(film.getId(), film);
+        log.info("Данные Фильма обновлены: {}", film);
+        return film;
+    }
+
+    protected void filmControllerPostValidate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.debug("Попытка создания фильма с пустым названием");
             throw new ValidationException("Название фильма не может быть пустым");
@@ -39,28 +69,9 @@ public class FilmController {
             log.debug("Описание фильма больше 200 символов");
             throw new ValidationException("Описание фильма не должно превышать 200 символов");
         }
-
-        idFilmGenerator++;
-        film.setId(idFilmGenerator);
-        filmsMap.put(idFilmGenerator, film);
-        log.info("Создан объект Film: {}", film);
-        return film;
     }
 
-    @GetMapping()
-    public List<Film> getAllFilms() {
-        List<Film> filmsList = new ArrayList<>();
-        if (!filmsMap.isEmpty()) {
-            for (Film film : filmsMap.values()) {
-                filmsList.add(film);
-            }
-        }
-        log.info("Текущее количество фильмов: {}", filmsList.size());
-        return filmsList;
-    }
-
-    @PutMapping()
-    public Film filmUpdate(@RequestBody Film film) {
+    protected void filmControllerPutValidate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.debug("Попытка создания фильма с пустым названием");
             throw new ValidationException("Название фильма не может быть пустым.");
@@ -83,8 +94,7 @@ public class FilmController {
             log.debug("Попытка изменить фильм c несуществующим id");
             throw new ValidationException("Фильм с таким id не найден");
         }
-        filmsMap.put(film.getId(), film);
-        log.info("Данные Фильма обновлены: {}", film);
-        return film;
     }
+
+
 }
