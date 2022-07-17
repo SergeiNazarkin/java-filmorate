@@ -57,7 +57,7 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("/users/{userId}/friends/{friendId}")                                           // TODO ADD FRIENDS
+    @PutMapping("/users/{userId}/friends/{friendId}")
     public String addFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
@@ -69,7 +69,7 @@ public class UserController {
         return String.format("Пользователи с id = %d и id = %d теперь друзья", userId, friendId);
     }
 
-    @DeleteMapping("/users/{userId}/friends/{friendId}")                                       // TODO DELETE FRIENDS
+    @DeleteMapping("/users/{userId}/friends/{friendId}")
     public void deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
@@ -93,7 +93,7 @@ public class UserController {
         return mutualFriendsList;
     }
 
-    protected void idValidate(Integer userId) {
+    private void idValidate(Integer userId) {
         if (userId == null) {
             log.debug("Некорректный Id при вводе запроса");
             throw new ValidationException("Id в запросе не может быть пустым.");
@@ -104,7 +104,7 @@ public class UserController {
         }
     }
 
-    protected void userControllerPostValidate(User user) {
+    private void userControllerPostValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.debug("Попытка создания пользователя с пустым логином");
             throw new ValidationException("Логин не может быть пустым.");
@@ -130,7 +130,7 @@ public class UserController {
         }
     }
 
-    protected void userControllerPutValidate(User user) {
+    private void userControllerPutValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.debug("Попытка изменить пользователю логин на пустой");
             throw new ValidationException("Логин не может быть пустым.");

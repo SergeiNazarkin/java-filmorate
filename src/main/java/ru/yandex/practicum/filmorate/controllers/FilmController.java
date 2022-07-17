@@ -54,17 +54,6 @@ public class FilmController {
         return filmService.getFilm(filmId);
     }
 
-    protected void filmIdValidate(Integer filmId) {
-        if (filmId == null) {
-            log.debug("Некорректный Id при вводе запроса");
-            throw new ValidationException("Id в запросе не может быть пустым.");
-        }
-        if (!getFilmsMap().containsKey(filmId)) {
-            log.debug("Попытка получить фильм с несуществующим id");
-            throw new NotFoundException("Фильм с таким id не найден.");
-        }
-    }
-
     @PutMapping("/films/{filmId}/like/{userId}")
     public String addLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
         filmIdValidate(filmId);
@@ -81,11 +70,32 @@ public class FilmController {
         return String.format("Пользователи с id = %d удалил лайк фильму с id = %d", userId, filmId);
     }
 
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilms(@RequestParam(value = "count",
+            defaultValue = "10", required = false) Integer count) {
+        if (count <= 0) {
+            throw new ValidationException("Параметр count должен быть положительным");
+        }
+        log.info("Получено {} популярных фильмов", count);
+        return filmService.getPopularFilms(count);
+    }
+
     public Map<Integer, Film> getFilmsMap() {
         return filmService.getFilmsMap();
     }
 
-    protected void filmControllerPostValidate(Film film) {
+    private void filmIdValidate(Integer filmId) {
+        if (filmId == null) {
+            log.debug("Некорректный Id при вводе запроса");
+            throw new ValidationException("Id в запросе не может быть пустым.");
+        }
+        if (!getFilmsMap().containsKey(filmId)) {
+            log.debug("Попытка получить фильм с несуществующим id");
+            throw new NotFoundException("Фильм с таким id не найден.");
+        }
+    }
+
+    private void filmControllerPostValidate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.debug("Попытка создания фильма с пустым названием");
             throw new ValidationException("Название фильма не может быть пустым");
@@ -106,7 +116,7 @@ public class FilmController {
         }
     }
 
-    protected void filmControllerPutValidate(Film film) {
+    private void filmControllerPutValidate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.debug("Попытка создания фильма с пустым названием");
             throw new ValidationException("Название фильма не может быть пустым.");
@@ -129,14 +139,5 @@ public class FilmController {
             log.debug("Попытка изменить фильм c несуществующим id");
             throw new NotFoundException("Фильм с таким id не найден");
         }
-    }
-
-    @GetMapping("/films/popular")
-    public List<Film> getPopularFilms(@RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
-        if (count <= 0) {
-            throw new ValidationException("Параметр count должен быть положительным");
-        }
-        log.info("Получено {} популярных фильмов", count);
-        return filmService.getPopularFilms(count);
     }
 }

@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     void create(Film film);
 
-    public Film getFilmById(Integer filmId);
+    Film getFilmById(Integer filmId);
 
     List<Film> getAllFilms();
 

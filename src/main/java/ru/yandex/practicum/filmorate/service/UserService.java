@@ -26,7 +26,7 @@ public class UserService {
         return user;
     }
 
-    public void addFriends(Integer userId, Integer friendId) {                             // TODO проверки
+    public void addFriends(Integer userId, Integer friendId) {
         User user = inMemoryUserStorage.getUserById(userId);
         checkUserInMap(user, userId);
         User friend = inMemoryUserStorage.getUserById(friendId);
@@ -34,18 +34,12 @@ public class UserService {
         inMemoryUserStorage.addFriend(user, friend);
     }
 
-    public void deleteFriend(Integer userId, Integer friendId) {                             // TODO проверки
+    public void deleteFriend(Integer userId, Integer friendId) {
         User user = inMemoryUserStorage.getUserById(userId);
         checkUserInMap(user, userId);
         User friend = inMemoryUserStorage.getUserById(friendId);
         checkUserInMap(friend, friendId);
         inMemoryUserStorage.deleteFriend(user, friend);
-    }
-
-    private void checkUserInMap(User user, Integer userId) {
-        if (user == null) {
-            throw new NotFoundException("User with id=" + userId + " not found");
-        }
     }
 
     public void createUser(User user) {
@@ -79,6 +73,12 @@ public class UserService {
         User otherUser = inMemoryUserStorage.getUserById(otherId);
         checkUserInMap(otherUser, otherId);
         return inMemoryUserStorage.getMutualFriendsList(user, otherUser);
+    }
+
+    private void checkUserInMap(User user, Integer userId) {
+        if (user == null) {
+            throw new NotFoundException("User with id=" + userId + " not found");
+        }
     }
 }
 

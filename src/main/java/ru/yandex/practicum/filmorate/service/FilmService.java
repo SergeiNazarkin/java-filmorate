@@ -48,18 +48,6 @@ public class FilmService {
         inMemoryFilmStorage.updateFilm(film);
     }
 
-    private void checkFilmInMap(Film film, Integer filmId) {
-        if (film == null) {
-            throw new NotFoundException("Film with id=" + filmId + " not found");
-        }
-    }
-
-    private void checkUserInMap(User user, Integer userId) {
-        if (user == null) {
-            throw new NotFoundException("User with id=" + userId + " not found");
-        }
-    }
-
     public void addLike(Integer filmId, Integer userId) {
         Film film = inMemoryFilmStorage.getFilmById(filmId);
         checkFilmInMap(film, userId);
@@ -89,5 +77,17 @@ public class FilmService {
                 .sorted((o1, o2) -> o2.getLikeCount() - o1.getLikeCount())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private void checkFilmInMap(Film film, Integer filmId) {
+        if (film == null) {
+            throw new NotFoundException("Film with id=" + filmId + " not found");
+        }
+    }
+
+    private void checkUserInMap(User user, Integer userId) {
+        if (user == null) {
+            throw new NotFoundException("User with id=" + userId + " not found");
+        }
     }
 }
