@@ -4,6 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -14,7 +17,7 @@ class FilmControllerJUnitTest {
 
     @BeforeEach
     public void prepareTest() {
-        this.filmController = new FilmController();
+        this.filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));
     }
 
     @Test
@@ -24,8 +27,8 @@ class FilmControllerJUnitTest {
                 LocalDate.of(2022, 6, 4), 120);
         filmController.create(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -55,8 +58,8 @@ class FilmControllerJUnitTest {
                 LocalDate.of(1895, 12, 28), 120);
         filmController.create(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -66,8 +69,8 @@ class FilmControllerJUnitTest {
                 LocalDate.of(1895, 12, 29), 120);
         filmController.create(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -111,8 +114,8 @@ class FilmControllerJUnitTest {
                 LocalDate.of(2022, 6, 4), 120);
         filmController.create(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -124,8 +127,8 @@ class FilmControllerJUnitTest {
                 LocalDate.of(2022, 6, 4), 120);
         filmController.create(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -136,12 +139,12 @@ class FilmControllerJUnitTest {
         filmController.create(film);
         Film film2 = new Film(1, "film2", "film1 description",
                 LocalDate.of(2022, 6, 4), 120);
-        assertEquals("film1", filmController.filmsMap.get(1).getName());
+        assertEquals("film1", filmController.getFilmsMap().get(1).getName());
         filmController.filmUpdate(film2);
 
-        assertEquals("film2", filmController.filmsMap.get(1).getName());
-        assertEquals(film2, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals("film2", filmController.getFilmsMap().get(1).getName());
+        assertEquals(film2, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -172,8 +175,8 @@ class FilmControllerJUnitTest {
         filmController.create(film);
         filmController.filmUpdate(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -184,8 +187,8 @@ class FilmControllerJUnitTest {
         filmController.create(film);
         filmController.filmUpdate(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -230,8 +233,8 @@ class FilmControllerJUnitTest {
         filmController.create(film);
         filmController.filmUpdate(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 
     @Test
@@ -244,7 +247,7 @@ class FilmControllerJUnitTest {
         filmController.create(film);
         filmController.filmUpdate(film);
 
-        assertEquals(film, filmController.filmsMap.get(1));
-        assertNotNull(filmController.filmsMap.get(1));
+        assertEquals(film, filmController.getFilmsMap().get(1));
+        assertNotNull(filmController.getFilmsMap().get(1));
     }
 }
