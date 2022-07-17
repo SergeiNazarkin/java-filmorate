@@ -25,4 +25,11 @@ public class ErrorHandler {
         log.info("400 {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleRuntimeException(final RuntimeException e) {
+        log.info("500 {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
 }
