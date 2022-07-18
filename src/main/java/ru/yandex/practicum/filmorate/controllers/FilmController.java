@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/films")
 public class FilmController {
     private final LocalDate releaseLimit = LocalDate.of(1895, 12, 28);
     private final FilmService filmService;
@@ -24,7 +24,7 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @PostMapping("/films")
+    @PostMapping
     public Film create(@RequestBody Film film) {
         filmControllerPostValidate(film);
         filmService.create(film);
@@ -32,14 +32,14 @@ public class FilmController {
         return film;
     }
 
-    @GetMapping("/films")
+    @GetMapping
     public List<Film> getAllFilms() {
         List<Film> filmsList = filmService.getAllFilms();
         log.info("Текущее количество фильмов: {}", filmsList.size());
         return filmsList;
     }
 
-    @PutMapping("/films")
+    @PutMapping
     public Film filmUpdate(@RequestBody Film film) {
         filmControllerPutValidate(film);
         filmService.updateFilm(film);
@@ -47,14 +47,14 @@ public class FilmController {
         return film;
     }
 
-    @GetMapping("/films/{filmId}")
+    @GetMapping("/{filmId}")
     public Film getFilm(@PathVariable Integer filmId) {
         filmIdValidate(filmId);
         log.info("Получен Фильм с id = {}", filmId);
         return filmService.getFilm(filmId);
     }
 
-    @PutMapping("/films/{filmId}/like/{userId}")
+    @PutMapping("/{filmId}/like/{userId}")
     public String addLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
         filmIdValidate(filmId);
         filmService.addLike(filmId, userId);
@@ -62,7 +62,7 @@ public class FilmController {
         return String.format("Пользователи с id = %d поставил лайк фильму с id = %d", userId, filmId);
     }
 
-    @DeleteMapping("/films/{filmId}/like/{userId}")
+    @DeleteMapping("/{filmId}/like/{userId}")
     public String deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
         filmIdValidate(filmId);
         filmService.deleteLike(filmId, userId);
@@ -70,7 +70,7 @@ public class FilmController {
         return String.format("Пользователи с id = %d удалил лайк фильму с id = %d", userId, filmId);
     }
 
-    @GetMapping("/films/popular")
+    @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam(value = "count",
             defaultValue = "10", required = false) Integer count) {
         if (count <= 0) {
@@ -135,7 +135,7 @@ public class FilmController {
             log.debug("Описание фильма больше 200 символов");
             throw new ValidationException("Описание фильма не должно превышать 200 символов");
         }
-        if (!filmService.getFilmsMap().containsKey(film.getId())) {
+        if (!getFilmsMap().containsKey(film.getId())) {
             log.debug("Попытка изменить фильм c несуществующим id");
             throw new NotFoundException("Фильм с таким id не найден");
         }

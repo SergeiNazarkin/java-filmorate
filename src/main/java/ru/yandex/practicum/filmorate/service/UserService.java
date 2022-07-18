@@ -20,9 +20,7 @@ public class UserService {
 
     public User getUser(Integer userId) {
         final User user = inMemoryUserStorage.getUserById(userId);
-        if (user == null) {
-            throw new NotFoundException("User with id=" + userId + " not found");
-        }
+        checkUserInMap(user, userId);
         return user;
     }
 

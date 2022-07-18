@@ -14,7 +14,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -27,7 +27,7 @@ public class UserController {
         return userService.getUsersMap();
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public User create(@RequestBody @Valid User user) {
         userControllerPostValidate(user);
         userService.createUser(user);
@@ -35,21 +35,21 @@ public class UserController {
         return user;
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     public User getUser(@PathVariable Integer userId) {
         idValidate(userId);
         log.info("Получен пользователь с id = {}", userId);
         return userService.getUser(userId);
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public List<User> getAllUsers() {
         List<User> usersList = userService.getAllUsers();
         log.info("Текущее количество пользователей: {}", usersList.size());
         return usersList;
     }
 
-    @PutMapping("/users")
+    @PutMapping
     public User updateUser(@RequestBody @Valid User user) {
         userControllerPutValidate(user);
         userService.updateUser(user);
@@ -57,7 +57,7 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("/users/{userId}/friends/{friendId}")
+    @PutMapping("/{userId}/friends/{friendId}")
     public String addFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
@@ -69,14 +69,14 @@ public class UserController {
         return String.format("Пользователи с id = %d и id = %d теперь друзья", userId, friendId);
     }
 
-    @DeleteMapping("/users/{userId}/friends/{friendId}")
+    @DeleteMapping("/{userId}/friends/{friendId}")
     public void deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
         userService.deleteFriend(userId, friendId);
     }
 
-    @GetMapping("/users/{userId}/friends")
+    @GetMapping("/{userId}/friends")
     public List<User> getUserFriendsList(@PathVariable Integer userId) {
         idValidate(userId);
         List<User> userFriendsList = userService.getUserFriendsList(userId);
@@ -84,7 +84,7 @@ public class UserController {
         return userFriendsList;
     }
 
-    @GetMapping("/users/{userId}/friends/common/{otherId}")
+    @GetMapping("/{userId}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable Integer userId, @PathVariable Integer otherId) {
         idValidate(userId);
         idValidate(otherId);
@@ -146,7 +146,7 @@ public class UserController {
             log.debug("Попытка изменить пользователю дату из будущего");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (!userService.getUsersMap().containsKey(user.getId())) {
+        if (!getUsersMap().containsKey(user.getId())) {
             log.debug("Попытка изменить пользователю c несуществующим id");
             throw new NotFoundException("Пользователь с таким id не найден.");
         }

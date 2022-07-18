@@ -30,9 +30,7 @@ public class FilmService {
 
     public Film getFilm(Integer filmId) {
         final Film film = inMemoryFilmStorage.getFilmById(filmId);
-        if (film == null) {
-            throw new NotFoundException("Film with id=" + filmId + " not found");
-        }
+        checkFilmInMap(film, filmId);
         return film;
     }
 

@@ -4,10 +4,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Map;
 
 public interface FilmStorage {
 
     void create(Film film);
+
+    Map<Integer, Film> getFilmsMap();
 
     Film getFilmById(Integer filmId);
 
