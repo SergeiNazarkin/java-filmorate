@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -13,41 +16,95 @@ import java.util.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    protected final Map<Integer, User> usersMap = new HashMap<>();
-    private int idGen = 0;
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    public Map<Integer, User> getUsersMap() {
+        return userService.getUsersMap();
+    }
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
         userControllerPostValidate(user);
-        idGen++;
-        user.setId(idGen);
-        usersMap.put(idGen, user);
+        userService.createUser(user);
         log.info("Создан объект User: {}", user);
-        System.out.println(usersMap.get(1));
         return user;
+    }
+
+    @GetMapping("/{userId}")
+    public User getUser(@PathVariable Integer userId) {
+        idValidate(userId);
+        log.info("Получен пользователь с id = {}", userId);
+        return userService.getUser(userId);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        List<User> usersList = new ArrayList<>();
-        if (!usersMap.isEmpty()) {
-            for (User user : usersMap.values()) {
-                usersList.add(user);
-            }
-        }
-        log.info("Текущее количество пользователе: {}", usersList.size());
+        List<User> usersList = userService.getAllUsers();
+        log.info("Текущее количество пользователей: {}", usersList.size());
         return usersList;
     }
 
     @PutMapping
     public User updateUser(@RequestBody @Valid User user) {
         userControllerPutValidate(user);
-        usersMap.put(user.getId(), user);
+        userService.updateUser(user);
         log.info("Данные пользователя обновлены: {}", user);
         return user;
     }
 
-    protected void userControllerPostValidate(User user) {
+    @PutMapping("/{userId}/friends/{friendId}")
+    public String addFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
+        idValidate(userId);
+        idValidate(friendId);
+        if (userId == friendId) {
+            throw new ValidationException("Id не могут быть одинаковыми");
+        }
+        userService.addFriends(userId, friendId);
+        log.info("Пользователи с id = {} и с id = {} теперь друзья", friendId, userId);
+        return String.format("Пользователи с id = %d и id = %d теперь друзья", userId, friendId);
+    }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public void deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
+        idValidate(userId);
+        idValidate(friendId);
+        userService.deleteFriend(userId, friendId);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public List<User> getUserFriendsList(@PathVariable Integer userId) {
+        idValidate(userId);
+        List<User> userFriendsList = userService.getUserFriendsList(userId);
+        log.info("Текущее количество друзей пользователя с id = {}: {}", userId, userFriendsList.size());
+        return userFriendsList;
+    }
+
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    public List<User> getMutualFriends(@PathVariable Integer userId, @PathVariable Integer otherId) {
+        idValidate(userId);
+        idValidate(otherId);
+        List<User> mutualFriendsList = userService.getMutualFriendsList(userId, otherId);
+        log.info("Количество общих друзей - {}.", mutualFriendsList.size());
+        return mutualFriendsList;
+    }
+
+    private void idValidate(Integer userId) {
+        if (userId == null) {
+            log.debug("Некорректный Id при вводе запроса");
+            throw new ValidationException("Id в запросе не может быть пустым.");
+        }
+        if (!userService.getUsersMap().containsKey(userId)) {
+            log.debug("Попытка изменить пользователю c несуществующим id");
+            throw new NotFoundException("Пользователь с таким id не найден.");
+        }
+    }
+
+    private void userControllerPostValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.debug("Попытка создания пользователя с пустым логином");
             throw new ValidationException("Логин не может быть пустым.");
@@ -73,7 +130,7 @@ public class UserController {
         }
     }
 
-    protected void userControllerPutValidate(User user) {
+    private void userControllerPutValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.debug("Попытка изменить пользователю логин на пустой");
             throw new ValidationException("Логин не может быть пустым.");
@@ -89,10 +146,11 @@ public class UserController {
             log.debug("Попытка изменить пользователю дату из будущего");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (!usersMap.containsKey(user.getId())) {
+        if (!getUsersMap().containsKey(user.getId())) {
             log.debug("Попытка изменить пользователю c несуществующим id");
-            throw new ValidationException("Пользователь с таким id не найден.");
+            throw new NotFoundException("Пользователь с таким id не найден.");
         }
+
     }
 
     private boolean checkWhiteSpace(String s) {

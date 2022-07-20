@@ -5,6 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -15,7 +17,7 @@ class UserControllerJUnitTest {
 
     @BeforeEach
     public void prepareTest() {
-        this.userController = new UserController();
+        this.userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
@@ -25,8 +27,8 @@ class UserControllerJUnitTest {
                 LocalDate.of(2022, 6, 4));
         userController.create(user);
 
-        assertEquals(user, userController.usersMap.get(1));
-        assertNotNull(userController.usersMap.get(1));
+        assertEquals(user, userController.getUsersMap().get(1));
+        assertNotNull(userController.getUsersMap().get(1));
     }
 
     @Test
