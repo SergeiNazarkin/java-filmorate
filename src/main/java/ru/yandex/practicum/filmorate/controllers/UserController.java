@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -21,10 +20,6 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    public Map<Integer, User> getUsersMap() {
-        return userService.getUsersMap();
     }
 
     @PostMapping
@@ -70,10 +65,12 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    public void deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
+    public String deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
         userService.deleteFriend(userId, friendId);
+        log.info("Пользователи с id = {} и с id = {} теперь не друзья", friendId, userId);
+        return String.format("Пользователь с id = %d отменил дружбу с id = %d", userId, friendId);
     }
 
     @GetMapping("/{userId}/friends")
@@ -97,10 +94,6 @@ public class UserController {
         if (userId == null) {
             log.debug("Некорректный Id при вводе запроса");
             throw new ValidationException("Id в запросе не может быть пустым.");
-        }
-        if (!userService.getUsersMap().containsKey(userId)) {
-            log.debug("Попытка изменить пользователю c несуществующим id");
-            throw new NotFoundException("Пользователь с таким id не найден.");
         }
     }
 
@@ -146,11 +139,6 @@ public class UserController {
             log.debug("Попытка изменить пользователю дату из будущего");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (!getUsersMap().containsKey(user.getId())) {
-            log.debug("Попытка изменить пользователю c несуществующим id");
-            throw new NotFoundException("Пользователь с таким id не найден.");
-        }
-
     }
 
     private boolean checkWhiteSpace(String s) {

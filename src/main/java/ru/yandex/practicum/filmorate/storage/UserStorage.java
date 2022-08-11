@@ -10,9 +10,9 @@ public interface UserStorage {
 
     User getUserById(Integer userId);
 
-    void addFriend(User user, User friend);
+    void addFriend(Integer userId, Integer friendId);
 
-    void deleteFriend(User user, User friend);
+    void deleteFriend(Integer userId, Integer friendId);
 
     List<User> getAllUsers();
 
@@ -20,5 +20,5 @@ public interface UserStorage {
 
     List<User> getUserFriendsList(Integer userId);
 
-    List<User> getMutualFriendsList(User user, User otherUser);
+    List<User> getMutualFriendsList(Integer userId, Integer otherUserId);
 }
