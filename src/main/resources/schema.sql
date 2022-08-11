@@ -33,8 +33,8 @@ create unique index IF NOT EXISTS FILM_NAME
 
 create table if not exists FILMS_GENRES
 (
-    FILM_ID  INTEGER REFERENCES films (film_id) ON DELETE CASCADE not null,
-    GENRE_ID INTEGER REFERENCES GENRES (genre_id)  ON DELETE CASCADE not null,
+    FILM_ID  INTEGER  not null,
+    GENRE_ID INTEGER  not null,
     constraint FILMS_GENRES_FILMS_FILM_ID_FK
         foreign key (FILM_ID) references FILMS,
     constraint FILMS_GENRES_GENRES_GENRE_ID_FK

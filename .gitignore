@@ -33,5 +33,3 @@ build/
 .vscode/
 *.db
 **/*.db
-filmorate.mv.db
-filmorate.trace.db
