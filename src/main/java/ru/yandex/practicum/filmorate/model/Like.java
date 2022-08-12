@@ -1,15 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
 @RequiredArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class Like {
     private final int filmId;
-    private final  int userId;
+    private final int userId;
 }

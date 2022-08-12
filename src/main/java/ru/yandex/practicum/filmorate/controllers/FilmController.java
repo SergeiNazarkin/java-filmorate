@@ -84,28 +84,28 @@ public class FilmController {
 
     private void filmIdValidate(Integer filmId) {
         if (filmId == null) {
-            log.debug("Некорректный Id при вводе запроса");
+            log.error("Некорректный Id при вводе запроса");
             throw new ValidationException("Id в запросе не может быть пустым.");
         }
     }
 
     private void filmControllerValidate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
-            log.debug("Попытка создания фильма с пустым названием");
+            log.error("Попытка создания фильма с пустым названием");
             throw new ValidationException("Название фильма не может быть пустым");
         }
         if (film.getReleaseDate().isBefore(releaseLimit)) {
-            log.debug("Дата релиза фильма раньше 28 декабря 1895 года");
+            log.error("Дата релиза фильма раньше 28 декабря 1895 года");
             throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
         }
 
         if (film.getDuration() <= 0) {
-            log.debug("Продолжительность фильма отрицательное число");
+            log.error("Продолжительность фильма отрицательное число");
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
 
         if (film.getDescription().length() > 200) {
-            log.debug("Описание фильма больше 200 символов");
+            log.error("Описание фильма больше 200 символов");
             throw new ValidationException("Описание фильма не должно превышать 200 символов");
         }
     }

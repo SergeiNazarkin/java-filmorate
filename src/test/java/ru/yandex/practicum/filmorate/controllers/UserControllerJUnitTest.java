@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserFriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.Checks;
+import ru.yandex.practicum.filmorate.utils.CheckUtils;
 import ru.yandex.practicum.filmorate.storage.DBUserRepository;
 import ru.yandex.practicum.filmorate.storage.UserFriendRepository;
 
@@ -21,9 +21,9 @@ class UserControllerJUnitTest {
 
     @BeforeEach
     public void prepareTest() {
-        this.userController = new UserController(new UserService(new DBUserRepository(new Checks(new JdbcTemplate()),
+        this.userController = new UserController(new UserService(new DBUserRepository(new CheckUtils(new JdbcTemplate()),
                 new JdbcTemplate())), new UserFriendService(new UserFriendRepository(new JdbcTemplate(),
-                new Checks(new JdbcTemplate()))));
+                new CheckUtils(new JdbcTemplate()))));
     }
 
     @Test

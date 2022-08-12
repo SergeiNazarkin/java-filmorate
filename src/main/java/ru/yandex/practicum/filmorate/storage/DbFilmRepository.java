@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.utils.CheckUtils;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -18,12 +19,12 @@ import java.util.Objects;
 public class DbFilmRepository implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreRepository genreRepository;
-    private final Checks check;
+    private final CheckUtils checkUtils;
 
-    public DbFilmRepository(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, Checks check) {
+    public DbFilmRepository(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, CheckUtils checkUtils) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreRepository = genreRepository;
-        this.check = check;
+        this.checkUtils = checkUtils;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class DbFilmRepository implements FilmStorage {
 
     @Override
     public Film getFilmById(Integer filmId) {
-        check.checkFilmIdInDB(filmId);
+        checkUtils.checkFilmIdInDB(filmId);
         final String sqlQuery = "select f.FILM_ID, f.FILM_NAME, f.MPA_ID, MPA.MPA_NAME," +
                 " DESCRIPTION,RELEASE_DATE, DURATION " +
                 "from FILMS as f Join MPA ON f.MPA_ID = MPA.MPA_ID where FILM_ID = ?";
@@ -74,16 +75,16 @@ public class DbFilmRepository implements FilmStorage {
 
     @Override
     public void updateFilm(Film film) {
-        check.checkFilmIdInDB(film.getId());
+        checkUtils.checkFilmIdInDB(film.getId());
         String sqlQuery = "update FILMS set FILM_NAME= ?, MPA_ID = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?" +
                 " where FILM_ID = ?";
-        jdbcTemplate.update(sqlQuery
-                , film.getName()
-                , film.getMpa().getId()
-                , film.getDescription()
-                , film.getReleaseDate()
-                , film.getDuration()
-                , film.getId());
+        jdbcTemplate.update(sqlQuery,
+                film.getName(),
+                film.getMpa().getId(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getId());
         genreRepository.setFilmGenre(film);
     }
 
@@ -98,6 +99,7 @@ public class DbFilmRepository implements FilmStorage {
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
     }
+
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
         Film newFilm = new Film(rs.getInt("FILM_ID"),
                 rs.getString("FILM_NAME"),

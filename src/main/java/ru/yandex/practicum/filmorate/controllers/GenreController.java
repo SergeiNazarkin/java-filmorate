@@ -37,7 +37,7 @@ public class GenreController {
 
     private void idValidate(Integer genreId) {
         if (genreId == null) {
-            log.debug("Некорректный Id при вводе запроса");
+            log.error("Некорректный Id при вводе запроса");
             throw new ValidationException("Id в запросе не может быть пустым.");
         }
     }

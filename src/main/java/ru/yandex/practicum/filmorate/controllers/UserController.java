@@ -96,51 +96,51 @@ public class UserController {
 
     private void idValidate(Integer userId) {
         if (userId == null) {
-            log.debug("Некорректный Id при вводе запроса");
+            log.error("Некорректный Id при вводе запроса");
             throw new ValidationException("Id в запросе не может быть пустым.");
         }
     }
 
     private void userControllerPostValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.debug("Попытка создания пользователя с пустым логином");
+            log.error("Попытка создания пользователя с пустым логином");
             throw new ValidationException("Логин не может быть пустым.");
         }
         if (checkWhiteSpace(user.getLogin())) {
-            log.debug("Логин содержит пробелы");
+            log.error("Логин содержит пробелы");
             throw new ValidationException("Логин не может содержать пробел.");
         }
         if (user.getName() == null || (user.getName().isBlank())) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Попытка создания пользователя с будущей датой рождения");
+            log.error("Попытка создания пользователя с будущей датой рождения");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            log.debug("Попытка создания пользователя с пустым email");
+            log.error("Попытка создания пользователя с пустым email");
             throw new ValidationException("Email не может быть пустым.");
         }
         if (!checkEmailCorrect(user.getEmail())) {
-            log.debug("Email имеет некорректный формат");
+            log.error("Email имеет некорректный формат");
             throw new ValidationException("Email должен содержать символ @.");
         }
     }
 
     private void userControllerPutValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.debug("Попытка изменить пользователю логин на пустой");
+            log.error("Попытка изменить пользователю логин на пустой");
             throw new ValidationException("Логин не может быть пустым.");
         }
         if (checkWhiteSpace(user.getLogin())) {
-            log.debug("Логин содержит пробелы");
+            log.error("Логин содержит пробелы");
             throw new ValidationException("Логин не может содержать пробел.");
         }
         if (user.getName() == null || (user.getName().isBlank())) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Попытка изменить пользователю дату из будущего");
+            log.error("Попытка изменить пользователю дату из будущего");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
     }

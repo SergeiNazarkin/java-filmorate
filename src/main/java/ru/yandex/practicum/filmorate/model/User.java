@@ -14,12 +14,12 @@ public class User {
     @Email
     private String email;
     private String login;
-    private Integer Id;
+    private Integer id;
     private String name;
     private LocalDate birthday;
 
-    public User(Integer Id, String login, String email, String name, LocalDate birthday) {
-        this.Id = Id;
+    public User(Integer id, String login, String email, String name, LocalDate birthday) {
+        this.id = id;
         this.login = login;
         this.email = email;
         this.name = name;
