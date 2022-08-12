@@ -10,13 +10,10 @@ import java.util.List;
 @Service
 public class FilmService {
     private final DbFilmRepository dbFilmRepository;
-
-
     @Autowired
     public FilmService(DbFilmRepository dbFilmRepository) {
         this.dbFilmRepository = dbFilmRepository;
     }
-
 
     public Film getFilm(Integer filmId) {
         return dbFilmRepository.getFilmById(filmId);
@@ -32,14 +29,6 @@ public class FilmService {
 
     public void updateFilm(Film film) {
         dbFilmRepository.updateFilm(film);
-    }
-
-    public void addLike(Integer filmId, Integer userId) {
-        dbFilmRepository.addLike(filmId, userId);
-    }
-
-    public void deleteLike(Integer filmId, Integer userId) {
-        dbFilmRepository.deleteLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(Integer count) {

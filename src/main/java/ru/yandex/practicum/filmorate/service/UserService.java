@@ -21,14 +21,6 @@ public class UserService {
         return dbUserRepository.getUserById(userId);
     }
 
-    public void addFriends(Integer userId, Integer friendId) {
-        dbUserRepository.addFriend(userId, friendId);
-    }
-
-    public void deleteFriend(Integer userId, Integer friendId) {
-        dbUserRepository.deleteFriend(userId, friendId);
-    }
-
     public void createUser(User user) {
         dbUserRepository.createUser(user);
     }

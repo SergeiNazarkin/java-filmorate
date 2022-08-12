@@ -4,9 +4,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -20,14 +18,12 @@ import java.util.Objects;
 public class DbFilmRepository implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreRepository genreRepository;
-    private final DBUserRepository dbUserRepository;
+    private final Checks check;
 
-
-    public DbFilmRepository(JdbcTemplate jdbcTemplate, GenreRepository genreRepository,
-                            DBUserRepository dbUserRepository) {
+    public DbFilmRepository(JdbcTemplate jdbcTemplate, GenreRepository genreRepository, Checks check) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreRepository = genreRepository;
-        this.dbUserRepository = dbUserRepository;
+        this.check = check;
     }
 
     @Override
@@ -57,7 +53,7 @@ public class DbFilmRepository implements FilmStorage {
 
     @Override
     public Film getFilmById(Integer filmId) {
-        checkFilmIdInDB(filmId);
+        check.checkFilmIdInDB(filmId);
         final String sqlQuery = "select f.FILM_ID, f.FILM_NAME, f.MPA_ID, MPA.MPA_NAME," +
                 " DESCRIPTION,RELEASE_DATE, DURATION " +
                 "from FILMS as f Join MPA ON f.MPA_ID = MPA.MPA_ID where FILM_ID = ?";
@@ -78,7 +74,7 @@ public class DbFilmRepository implements FilmStorage {
 
     @Override
     public void updateFilm(Film film) {
-        checkFilmIdInDB(film.getId());
+        check.checkFilmIdInDB(film.getId());
         String sqlQuery = "update FILMS set FILM_NAME= ?, MPA_ID = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?" +
                 " where FILM_ID = ?";
         jdbcTemplate.update(sqlQuery
@@ -92,22 +88,6 @@ public class DbFilmRepository implements FilmStorage {
     }
 
     @Override
-    public void addLike(Integer filmId, Integer userId) {
-        checkFilmIdInDB(filmId);
-        dbUserRepository.checkUserIdInDB(userId);
-        String sqlQuery = "insert into LIKES (FILM_ID, USER_ID) values (?, ?)";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-    }
-
-    @Override
-    public void deleteLike(Integer filmId, Integer userId) {
-        checkFilmIdInDB(filmId);
-        dbUserRepository.checkUserIdInDB(userId);
-        String sqlQuery = "delete from LIKES where FILM_ID = ? AND USER_ID = ?";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-    }
-
-    @Override
     public List<Film> getPopularFilms(Integer count) {
         String sqlQuery = "SELECT f.*, m.MPA_NAME\n" +
                 "FROM FILMS f\n" +
@@ -118,7 +98,6 @@ public class DbFilmRepository implements FilmStorage {
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, this::makeFilm, count);
     }
-
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
         Film newFilm = new Film(rs.getInt("FILM_ID"),
                 rs.getString("FILM_NAME"),
@@ -129,12 +108,5 @@ public class DbFilmRepository implements FilmStorage {
         );
         newFilm.getGenres().addAll(genreRepository.loadFilmGenre(newFilm));
         return newFilm;
-    }
-
-    private void checkFilmIdInDB(Integer filmId) {
-        SqlRowSet idRows = jdbcTemplate.queryForRowSet("select film_id from films where film_id = ?", filmId);
-        if (!idRows.next()) {
-            throw new NotFoundException("Film with id=" + filmId + " not found");
-        }
     }
 }

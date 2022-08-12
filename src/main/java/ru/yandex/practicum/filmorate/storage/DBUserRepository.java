@@ -4,9 +4,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
@@ -18,10 +16,12 @@ import java.util.stream.Collectors;
 @Repository
 @Primary
 public class DBUserRepository implements UserStorage {
+    private final Checks check;
 
     private final JdbcTemplate jdbcTemplate;
 
-    public DBUserRepository(JdbcTemplate jdbcTemplate) {
+    public DBUserRepository(Checks check, JdbcTemplate jdbcTemplate) {
+        this.check = check;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -49,7 +49,7 @@ public class DBUserRepository implements UserStorage {
 
     @Override
     public User getUserById(Integer id) {
-        checkUserIdInDB(id);
+        check.checkUserIdInDB(id);
         final String sqlQuery = "select USER_ID, LOGIN, EMAIL, BIRTHDAY, USER_NAME " +
                 "from USERS where USER_ID = ?";
         final List<User> users = jdbcTemplate.query(sqlQuery, this::makeUser, id);
@@ -60,23 +60,6 @@ public class DBUserRepository implements UserStorage {
     }
 
     @Override
-    public void addFriend(Integer userId, Integer friendId) {
-        checkUserIdInDB(userId);
-        checkUserIdInDB(friendId);
-        String sqlQuery = "insert into USERS_FRIENDS (USER_ID, FRIEND_ID) values (?, ?)";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
-    }
-
-    @Override
-    public void deleteFriend(Integer userId, Integer friendId) {
-        checkUserIdInDB(userId);
-        checkUserIdInDB(friendId);
-
-        String sqlQuery = "delete from users_friends where user_id = ? AND friend_Id = ?";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
-    }
-
-    @Override
     public List<User> getAllUsers() {
         String sqlQuery = "select user_id, login, email, user_name, birthday from users";
         return jdbcTemplate.query(sqlQuery, this::makeUser);
@@ -84,7 +67,7 @@ public class DBUserRepository implements UserStorage {
 
     @Override
     public void updateUser(User user) {
-        checkUserIdInDB(user.getId());
+        check.checkUserIdInDB(user.getId());
         String sqlQuery = "update users set login= ?, email = ?, user_name = ?, birthday = ? " +
                 "where USER_ID = ?";
         jdbcTemplate.update(sqlQuery
@@ -97,7 +80,7 @@ public class DBUserRepository implements UserStorage {
 
     @Override
     public List<User> getUserFriendsList(Integer userId) {
-        checkUserIdInDB(userId);
+        check.checkUserIdInDB(userId);
         String sqlQuery = "SELECT * From users Where user_id IN (" +
                 "SELECT uf.friend_id from USERS_FRIENDS AS uf where uf.USER_ID=?)";
         final List<User> usersFriendsList;
@@ -122,12 +105,5 @@ public class DBUserRepository implements UserStorage {
                 rs.getString("EMAIL"),
                 rs.getString("USER_NAME"),
                 rs.getDate("BIRTHDAY").toLocalDate());
-    }
-
-    protected void checkUserIdInDB(Integer userId) {
-        SqlRowSet idRows = jdbcTemplate.queryForRowSet("select user_id from users where user_id = ?", userId);
-        if (!idRows.next()) {
-            throw new NotFoundException("User with id=" + userId + " not found");
-        }
     }
 }

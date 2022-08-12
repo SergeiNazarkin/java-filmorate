@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,10 +17,13 @@ import java.util.List;
 public class FilmController {
     private final LocalDate releaseLimit = LocalDate.of(1895, 12, 28);
     private final FilmService filmService;
+    private final LikeService likeService;
+
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, LikeService likeService) {
         this.filmService = filmService;
+        this.likeService = likeService;
     }
 
     @PostMapping
@@ -55,7 +59,7 @@ public class FilmController {
     @PutMapping("/{filmId}/like/{userId}")
     public String addLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
         filmIdValidate(filmId);
-        filmService.addLike(filmId, userId);
+        likeService.addLike(filmId, userId);
         log.info("Пользователи с id = {} поставил лайк фильму с id = {}", userId, filmId);
         return String.format("Пользователи с id = %d поставил лайк фильму с id = %d", userId, filmId);
     }
@@ -63,7 +67,7 @@ public class FilmController {
     @DeleteMapping("/{filmId}/like/{userId}")
     public String deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
         filmIdValidate(filmId);
-        filmService.deleteLike(filmId, userId);
+        likeService.deleteLike(filmId, userId);
         log.info("Пользователь с id = {} удалил лайк фильму с id = {}", userId, filmId);
         return String.format("Пользователи с id = %d удалил лайк фильму с id = %d", userId, filmId);
     }

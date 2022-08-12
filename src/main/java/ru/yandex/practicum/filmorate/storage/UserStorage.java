@@ -10,10 +10,6 @@ public interface UserStorage {
 
     User getUserById(Integer userId);
 
-    void addFriend(Integer userId, Integer friendId);
-
-    void deleteFriend(Integer userId, Integer friendId);
-
     List<User> getAllUsers();
 
     void updateUser(User user);

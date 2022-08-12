@@ -6,8 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserFriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.Checks;
 import ru.yandex.practicum.filmorate.storage.DBUserRepository;
+import ru.yandex.practicum.filmorate.storage.UserFriendRepository;
 
 import java.time.LocalDate;
 
@@ -18,7 +21,9 @@ class UserControllerJUnitTest {
 
     @BeforeEach
     public void prepareTest() {
-        this.userController = new UserController(new UserService(new DBUserRepository(new JdbcTemplate())));
+        this.userController = new UserController(new UserService(new DBUserRepository(new Checks(new JdbcTemplate()),
+                new JdbcTemplate())), new UserFriendService(new UserFriendRepository(new JdbcTemplate(),
+                new Checks(new JdbcTemplate()))));
     }
 
     @Test
@@ -39,12 +44,7 @@ class UserControllerJUnitTest {
                 LocalDate.of(2022, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        userController.create(user);
-                    }
-                });
+                () -> userController.create(user));
 
         assertEquals("Логин не может содержать пробел.", exception.getMessage());
     }
@@ -56,12 +56,7 @@ class UserControllerJUnitTest {
                 LocalDate.of(2032, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        userController.create(user);
-                    }
-                });
+                () -> userController.create(user));
 
         assertEquals("Дата рождения не может быть в будущем.", exception.getMessage());
     }
@@ -72,12 +67,7 @@ class UserControllerJUnitTest {
         User user = new User(1, "ivan", "", "Иван", LocalDate.of(1985, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        userController.create(user);
-                    }
-                });
+                () -> userController.create(user));
 
         assertEquals("Email не может быть пустым.", exception.getMessage());
     }
@@ -89,12 +79,7 @@ class UserControllerJUnitTest {
                 LocalDate.of(1985, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        userController.create(user);
-                    }
-                });
+                () -> userController.create(user));
 
         assertEquals("Email должен содержать символ @.", exception.getMessage());
     }
@@ -106,12 +91,7 @@ class UserControllerJUnitTest {
                 LocalDate.of(2022, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        userController.updateUser(user);
-                    }
-                });
+                () -> userController.updateUser(user));
 
         assertEquals("Логин не может быть пустым.", exception.getMessage());
     }
@@ -123,12 +103,7 @@ class UserControllerJUnitTest {
                 LocalDate.of(2022, 6, 4));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                new Executable() {
-                    @Override
-                    public void execute() {
-                        userController.updateUser(user);
-                    }
-                });
+                () -> userController.updateUser(user));
 
         assertEquals("Логин не может содержать пробел.", exception.getMessage());
     }

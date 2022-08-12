@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserFriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -16,10 +17,13 @@ import java.util.*;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final UserFriendService userFriendService;
+
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserFriendService userFriendService) {
         this.userService = userService;
+        this.userFriendService = userFriendService;
     }
 
     @PostMapping
@@ -59,7 +63,7 @@ public class UserController {
         if (userId == friendId) {
             throw new ValidationException("Id не могут быть одинаковыми");
         }
-        userService.addFriends(userId, friendId);
+        userFriendService.addFriends(userId, friendId);
         log.info("Пользователи с id = {} и с id = {} теперь друзья", friendId, userId);
         return String.format("Пользователи с id = %d и id = %d теперь друзья", userId, friendId);
     }
@@ -68,7 +72,7 @@ public class UserController {
     public String deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
-        userService.deleteFriend(userId, friendId);
+        userFriendService.deleteFriend(userId, friendId);
         log.info("Пользователи с id = {} и с id = {} теперь не друзья", friendId, userId);
         return String.format("Пользователь с id = %d отменил дружбу с id = %d", userId, friendId);
     }

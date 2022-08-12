@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
@@ -21,7 +22,8 @@ class FilmControllerJUnitTest {
     public void prepareTest() {
         this.filmController = new FilmController(
                 new FilmService(new DbFilmRepository(new JdbcTemplate(), new GenreRepository((new JdbcTemplate())),
-                                new DBUserRepository(new JdbcTemplate()))));
+                        new Checks(new JdbcTemplate()))), new LikeService(new LikeRepository(new JdbcTemplate(),
+                new Checks(new JdbcTemplate()))));
     }
 
     @Test
