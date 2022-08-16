@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserFriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -17,14 +17,13 @@ import java.util.*;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final UserFriendService userFriendService;
+
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserFriendService userFriendService) {
         this.userService = userService;
-    }
-
-    public Map<Integer, User> getUsersMap() {
-        return userService.getUsersMap();
+        this.userFriendService = userFriendService;
     }
 
     @PostMapping
@@ -64,16 +63,18 @@ public class UserController {
         if (userId == friendId) {
             throw new ValidationException("Id не могут быть одинаковыми");
         }
-        userService.addFriends(userId, friendId);
+        userFriendService.addFriends(userId, friendId);
         log.info("Пользователи с id = {} и с id = {} теперь друзья", friendId, userId);
         return String.format("Пользователи с id = %d и id = %d теперь друзья", userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    public void deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
+    public String deleteFriends(@PathVariable Integer userId, @PathVariable Integer friendId) {
         idValidate(userId);
         idValidate(friendId);
-        userService.deleteFriend(userId, friendId);
+        userFriendService.deleteFriend(userId, friendId);
+        log.info("Пользователи с id = {} и с id = {} теперь не друзья", friendId, userId);
+        return String.format("Пользователь с id = %d отменил дружбу с id = %d", userId, friendId);
     }
 
     @GetMapping("/{userId}/friends")
@@ -95,62 +96,53 @@ public class UserController {
 
     private void idValidate(Integer userId) {
         if (userId == null) {
-            log.debug("Некорректный Id при вводе запроса");
+            log.error("Некорректный Id при вводе запроса");
             throw new ValidationException("Id в запросе не может быть пустым.");
-        }
-        if (!userService.getUsersMap().containsKey(userId)) {
-            log.debug("Попытка изменить пользователю c несуществующим id");
-            throw new NotFoundException("Пользователь с таким id не найден.");
         }
     }
 
     private void userControllerPostValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.debug("Попытка создания пользователя с пустым логином");
+            log.error("Попытка создания пользователя с пустым логином");
             throw new ValidationException("Логин не может быть пустым.");
         }
         if (checkWhiteSpace(user.getLogin())) {
-            log.debug("Логин содержит пробелы");
+            log.error("Логин содержит пробелы");
             throw new ValidationException("Логин не может содержать пробел.");
         }
         if (user.getName() == null || (user.getName().isBlank())) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Попытка создания пользователя с будущей датой рождения");
+            log.error("Попытка создания пользователя с будущей датой рождения");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            log.debug("Попытка создания пользователя с пустым email");
+            log.error("Попытка создания пользователя с пустым email");
             throw new ValidationException("Email не может быть пустым.");
         }
         if (!checkEmailCorrect(user.getEmail())) {
-            log.debug("Email имеет некорректный формат");
+            log.error("Email имеет некорректный формат");
             throw new ValidationException("Email должен содержать символ @.");
         }
     }
 
     private void userControllerPutValidate(User user) {
         if (user.getLogin() == null || user.getLogin().isBlank()) {
-            log.debug("Попытка изменить пользователю логин на пустой");
+            log.error("Попытка изменить пользователю логин на пустой");
             throw new ValidationException("Логин не может быть пустым.");
         }
         if (checkWhiteSpace(user.getLogin())) {
-            log.debug("Логин содержит пробелы");
+            log.error("Логин содержит пробелы");
             throw new ValidationException("Логин не может содержать пробел.");
         }
         if (user.getName() == null || (user.getName().isBlank())) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Попытка изменить пользователю дату из будущего");
+            log.error("Попытка изменить пользователю дату из будущего");
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
-        if (!getUsersMap().containsKey(user.getId())) {
-            log.debug("Попытка изменить пользователю c несуществующим id");
-            throw new NotFoundException("Пользователь с таким id не найден.");
-        }
-
     }
 
     private boolean checkWhiteSpace(String s) {
